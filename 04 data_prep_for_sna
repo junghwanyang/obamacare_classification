@@ -1,0 +1,364 @@
+---
+title: "04 data_prep_for_sna"
+author: "J Yang"
+date: "May 2, 2016"
+output: html_document
+---
+
+
+
+d$time <- 
+  as.Date(as.POSIXct(d$created_at, format = "%a %b %d %H:%M:%S %z %Y", tz = "UTC"),
+          format = "%m %d")
+
+
+# Created three different dataframes by time period
+
+d1 <- subset(d,as.Date(d$time) >= "2012-03-17" & as.Date(d$time) <= "2012-04-03")
+d2 <- subset(d,as.Date(d$time) >= "2012-06-19" & as.Date(d$time) <= "2012-07-07")
+d3 <- subset(d,as.Date(d$time) >= "2012-10-22" & as.Date(d$time) <= "2012-11-08")
+table(d$time)
+
+
+# Create three different data lists by time period
+oc1 <- obamacare[as.Date(as.POSIXct(d$created_at, 
+                                    format = "%a %b %d %H:%M:%S %z %Y", tz = "UTC"),
+                         format = "%m %d") >= "2012-03-17" &
+                 as.Date(as.POSIXct(d$created_at,
+                                    format = "%a %b %d %H:%M:%S %z %Y", tz = "UTC"),
+                         format = "%m %d") <= "2012-04-03"]
+oc2 <- obamacare[as.Date(as.POSIXct(d$created_at, 
+                                    format = "%a %b %d %H:%M:%S %z %Y", tz = "UTC"),
+                         format = "%m %d") >= "2012-06-19" &
+                 as.Date(as.POSIXct(d$created_at,
+                                    format = "%a %b %d %H:%M:%S %z %Y", tz = "UTC"),
+                         format = "%m %d") <= "2012-07-07"]
+oc3 <- obamacare[as.Date(as.POSIXct(d$created_at, 
+                                    format = "%a %b %d %H:%M:%S %z %Y", tz = "UTC"),
+                         format = "%m %d") >= "2012-10-22" &
+                 as.Date(as.POSIXct(d$created_at,
+                                    format = "%a %b %d %H:%M:%S %z %Y", tz = "UTC"),
+                         format = "%m %d") <= "2012-11-08"]
+
+rm(d1);rm(d2);rm(d3)
+
+# sort data by several variable
+# sorted.data_t1 <- 
+#   d1[order(-d1$verified, -d1$followers_count, d1$name), ]
+# sorted.data_t2 <- 
+#   d2[order(-d2$verified, -d2$followers_count, d2$name), ]
+# sorted.data_t3 <- 
+#   d3[order(-d3$verified, -d3$followers_count, d3$name), ]
+# 
+# # export as csv
+# write.csv(sorted.data_t1, "sorted.data.text_t1.csv")
+# write.csv(sorted.data_t2, "sorted.data.text_t2.csv")
+# write.csv(sorted.data_t3, "sorted.data.text_t3.csv")
+
+
+The following codes are based on Dignxian`s original [post](https://github.com/monchewharry/R_twitter_politics/blob/master/obama_tweet_graph/Obamacare_Tweets/retweet_network.R)
+
+```{r}
+library(igraph)
+library(dplyr)
+
+length(obamacare)
+
+
+##### 1. data structure ####
+# str(obamacare[[101010]])
+# obamacare[[101010]]$text
+# obamacare[[101010]]$user$screen_name# @screen_name unique
+# obamacare[[101010]]$user$id
+# obamacare[[101010]]$user$name# may be duplicated
+# obamacare[[101010]]$retweeted_status$user$screen_name# retweet from
+# obamacare[[101010]]$retweeted_status$user$name   
+# obamacare[[101010]]$retweeted_status$user$id
+# i=0
+# while(T){
+#   i=i+1
+#   if(identical(obamacare[[i]]$user$screen_name,"mattklewis")
+#      &identical(obamacare[[i]]$text,"If ObamaCare is overturned, George W. Bush's greatest legacy might be ... Roberts and Alito. http://t.co/y0WxraPM")){
+#     print(i)
+#   }else{if(i=length(obamacare)) break}
+# }
+
+# str(obamacare[[100904]])
+# str(obamacare[[105505]])
+# obamacare[[100904]]$retweeted_status#original (=NULL)
+
+### Make edge list ###
+# # Write a function that returns an ID of a tweeter and an ID of
+# # an original tweeter
+# edge.id <- function(x){
+#   if(identical(NULL, x$retweeted_status)) return(c(NA, NA))
+#   else{
+#     return(c(x$user$id, x$retweeted_status$user$id))
+#   }
+# }
+
+# This is the same function that uses screen_name instead of ID
+edge.screen_name <- function(x){
+  if(identical(NULL, x$retweeted_status)) return(c(NA, NA))
+  else{
+    return(c(x$user$screen_name, x$retweeted_status$user$screen_name))
+  }
+}
+
+# Time 1
+edge_list_t1 <- t(sapply(oc1, FUN = edge.screen_name))
+colnames(edge_list_t1) <- c("post", "retweet_from")
+edge_list_t1 <- edge_list_t1[!is.na(edge_list_t1[, 1]), ]
+edge_list_t1 <- as.data.frame(edge_list_t1, stringsAsFactors = F)
+
+weight_t1 <- table(edge_list_t1$retweet_from)
+weight_t1 <- as.data.frame(weight_t1, stringsAsFactors = F)
+names(weight_t1) <- c("retweet_from","weight")
+head(weight_t1)
+
+temp <- merge(edge_list_t1, weight_t1, all.x = T)
+
+# Remove edges received less than 5 retweets
+edge_list_t1 <- subset(temp, select = c(post, retweet_from), subset = weight >= 5)
+edge_list_t1 <- edge_list_t1[!is.na(edge_list_t1[, 1]), ]
+edge_list_t1 <- as.data.frame(edge_list_t1, stringsAsFactors = F)
+
+# New weight from smaller dataset
+weight_t1 <- table(edge_list_t1$retweet_from)
+weight_t1 <- as.data.frame(weight_t1, stringsAsFactors = F)
+names(weight_t1) <- c("retweet_from","weight")
+head(weight_t1)
+
+rm(temp)
+
+
+# Time 2
+edge_list_t2 <- t(sapply(oc2, FUN = edge.screen_name))
+colnames(edge_list_t2) <- c("post", "retweet_from")
+edge_list_t2 <- edge_list_t2[!is.na(edge_list_t2[, 1]), ]
+edge_list_t2 <- as.data.frame(edge_list_t2, stringsAsFactors = F)
+
+weight_t2 <- table(edge_list_t2$retweet_from)
+weight_t2 <- as.data.frame(weight_t2, stringsAsFactors = F)
+names(weight_t2) <- c("retweet_from","weight")
+head(weight_t2)
+
+temp <- merge(edge_list_t2, weight_t2, all.x = T)
+
+# Remove edges received less than 5 retweets
+edge_list_t2 <- subset(temp, select = c(post, retweet_from), subset = weight >= 5)
+edge_list_t2 <- edge_list_t2[!is.na(edge_list_t2[, 1]), ]
+edge_list_t2 <- as.data.frame(edge_list_t2, stringsAsFactors = F)
+
+# New weight from smaller dataset
+weight_t2 <- table(edge_list_t2$retweet_from)
+weight_t2 <- as.data.frame(weight_t2, stringsAsFactors = F)
+names(weight_t2) <- c("retweet_from","weight")
+head(weight_t2)
+
+rm(temp)
+
+
+# Time 3
+edge_list_t3 <- t(sapply(oc3, FUN = edge.screen_name))
+colnames(edge_list_t3) <- c("post", "retweet_from")
+edge_list_t3 <- edge_list_t3[!is.na(edge_list_t3[, 1]), ]
+edge_list_t3 <- as.data.frame(edge_list_t3, stringsAsFactors = F)
+
+weight_t3 <- table(edge_list_t3$retweet_from)
+weight_t3 <- as.data.frame(weight_t3, stringsAsFactors = F)
+names(weight_t3) <- c("retweet_from","weight")
+head(weight_t3)
+
+temp <- merge(edge_list_t3, weight_t3, all.x = T)
+
+# Remove edges received less than 5 retweets
+edge_list_t3 <- subset(temp, select = c(post, retweet_from), subset = weight >= 5)
+edge_list_t3 <- edge_list_t3[!is.na(edge_list_t3[, 1]), ]
+edge_list_t3 <- as.data.frame(edge_list_t3, stringsAsFactors = F)
+
+# New weight from smaller dataset
+weight_t3 <- table(edge_list_t3$retweet_from)
+weight_t3 <- as.data.frame(weight_t3, stringsAsFactors = F)
+names(weight_t3) <- c("retweet_from","weight")
+head(weight_t3)
+
+rm(temp)
+
+
+
+### Make vertices list ###
+# Before making a list, I added a label indicating 'elite' users
+# Elite users: Verified account + top 2% users in terms of number of followers
+
+# Elite user list for time 1
+unique.users_t1 <- read.csv('sorted.unique.users_t1.csv', header = T)
+length(unique.users_t1$followers_count[unique.users_t1$verified==T])
+length(unique.users_t1$followers_count[unique.users_t1$verified==F])
+unique.users_t1$elite <- 0
+unique.users_t1$elite[unique.users_t1$verified == T] <- 1
+table(unique.users_t1$elite, unique.users_t1$ideology)
+unique.users_t1$elite[unique.users_t1$verified == F &
+                   unique.users_t1$followers_count >
+                     quantile(unique.users_t1$followers_count[unique.users_t1$verified == F], 0.98)] <- 1
+table(unique.users_t1$elite, unique.users_t1$ideology)
+elite.users_t1 <- unique.users_t1[c("screen_name", "elite")]
+names(elite.users_t1) <- c("retweet_from", "elite")
+
+# Elite user list for time 2
+unique.users_t2 <- read.csv('sorted.unique.users_t2.csv', header = T)
+length(unique.users_t2$followers_count[unique.users_t2$verified==T])
+length(unique.users_t2$followers_count[unique.users_t2$verified==F])
+unique.users_t2$elite <- 0
+unique.users_t2$elite[unique.users_t2$verified == T] <- 1
+table(unique.users_t2$elite, unique.users_t2$ideology)
+unique.users_t2$elite[unique.users_t2$verified == F &
+                   unique.users_t2$followers_count >
+                     quantile(unique.users_t2$followers_count[unique.users_t2$verified == F], 0.98)] <- 1
+table(unique.users_t2$elite, unique.users_t2$ideology)
+elite.users_t2 <- unique.users_t2[c("screen_name", "elite")]
+names(elite.users_t2) <- c("retweet_from", "elite")
+
+# Elite user list for time 3
+unique.users_t3 <- read.csv('sorted.unique.users_t3.csv', header = T)
+length(unique.users_t3$followers_count[unique.users_t3$verified==T])
+length(unique.users_t3$followers_count[unique.users_t3$verified==F])
+unique.users_t3$elite <- 0
+unique.users_t3$elite[unique.users_t3$verified == T] <- 1
+table(unique.users_t3$elite, unique.users_t3$ideology)
+unique.users_t3$elite[unique.users_t3$verified == F &
+                   unique.users_t3$followers_count >
+                     quantile(unique.users_t3$followers_count[unique.users_t3$verified == F], 0.98)] <- 1
+table(unique.users_t3$elite, unique.users_t3$ideology)
+elite.users_t3 <- unique.users_t3[c("screen_name", "elite")]
+names(elite.users_t3) <- c("retweet_from", "elite")
+
+# unique.users$elite[unique.users$verified == F &
+#                    unique.users$ideology == "C" &
+#                    unique.users$followers_count > quantile(unique.users$followers_count[unique.users$verified == F &
+#                    unique.users$ideology == "C"], 0.985)] <- 1
+# unique.users$elite[unique.users$verified == F &
+#                    unique.users$ideology == "L" &
+#                    unique.users$followers_count > quantile(unique.users$followers_count[unique.users$verified == F &
+#                    unique.users$ideology == "L"], 0.97)] <- 1
+
+
+# Create lists of vertices: Time 1
+vertices_list_t1 <- 
+  t(sapply(oc1, FUN = function(x)
+   c(x$user$id_str, x$user$screen_name, x$ideology)))
+
+vertices2 <- function(x){
+  if(!identical(NULL,x$retweeted_status))
+   return(c(x$retweeted_status$user$id_str,x$retweeted_status$user$screen_name, x$ideology))
+   else return(c(NA,NA,NA))
+}
+
+vertices_list2_t1 <- t(sapply(oc1, FUN = vertices2))
+vertices_list2_t1 <- vertices_list2_t1[!is.na(vertices_list2_t1[, 1]), ]
+
+
+vertices_list_t1 <- rbind(vertices_list_t1,vertices_list2_t1)
+colnames(vertices_list_t1)<-c("id","retweet_from", "ideology")
+vertices_list_t1 <- as.data.frame(vertices_list_t1, stringsAsFactors = F)
+
+library(dplyr)
+vertices_list_t1 <- distinct(select(vertices_list_t1,id,name)) 
+vertices_list_t1 <- vertices_list_t1[!duplicated(vertices_list_t1$id),]#delete the duplicated item
+
+setdiff(union(edge_list_t1$post,edge_list_t1$retweet_from),vertices_list_t1$id)#verify the completeness
+
+# Add attr weight
+vertices_list_t1<-merge(vertices_list_t1,weight_t1,all.x=T)
+vertices_list_t1[is.na(vertices_list_t1$weight),4]<-0
+
+# Add elite notification
+vertices_list_t1<-merge(vertices_list_t1, elite.users_t1,all.x=T)
+vertices_list_t1[is.na(vertices_list_t1$elite),5]<-0
+head(vertices_list_t1)
+length(vertices_list_t1[,1])
+
+
+# Create lists of vertices: Time 2
+vertices_list_t2 <- 
+  t(sapply(oc2, FUN = function(x)
+   c(x$user$id_str, x$user$screen_name, x$ideology)))
+
+vertices2 <- function(x){
+  if(!identical(NULL,x$retweeted_status))
+   return(c(x$retweeted_status$user$id_str,x$retweeted_status$user$screen_name, x$ideology))
+   else return(c(NA,NA,NA))
+}
+
+vertices_list2_t2 <- t(sapply(oc2, FUN = vertices2))
+vertices_list2_t2 <- vertices_list2_t2[!is.na(vertices_list2_t2[, 1]), ]
+
+
+vertices_list_t2 <- rbind(vertices_list_t2,vertices_list2_t2)
+colnames(vertices_list_t2)<-c("id","retweet_from", "ideology")
+vertices_list_t2 <- as.data.frame(vertices_list_t2, stringsAsFactors = F)
+
+vertices_list_t2 <- distinct(select(vertices_list_t2,id,name)) 
+vertices_list_t2 <- vertices_list_t2[!duplicated(vertices_list_t2$id),]#delete the duplicated item
+
+setdiff(union(edge_list_t2$post,edge_list_t2$retweet_from),vertices_list_t2$id)#verify the completeness
+
+# Add attr weight
+vertices_list_t2<-merge(vertices_list_t2,weight_t2,all.x=T)
+vertices_list_t2[is.na(vertices_list_t2$weight),4]<-0
+
+# Add elite notification
+vertices_list_t2<-merge(vertices_list_t2, elite.users_t2,all.x=T)
+vertices_list_t2[is.na(vertices_list_t2$elite),5]<-0
+head(vertices_list_t2)
+length(vertices_list_t2[,1])
+
+# Create lists of vertices: Time 3
+vertices_list_t3 <- 
+  t(sapply(oc3, FUN = function(x)
+   c(x$user$id_str, x$user$screen_name, x$ideology)))
+
+vertices2 <- function(x){
+  if(!identical(NULL,x$retweeted_status))
+   return(c(x$retweeted_status$user$id_str,x$retweeted_status$user$screen_name, x$ideology))
+   else return(c(NA,NA,NA))
+}
+
+vertices_list2_t3 <- t(sapply(oc3, FUN = vertices2))
+vertices_list2_t3 <- vertices_list2_t3[!is.na(vertices_list2_t3[, 1]), ]
+
+
+vertices_list_t3 <- rbind(vertices_list_t3,vertices_list3_t3)
+colnames(vertices_list_t3)<-c("id","retweet_from", "ideology")
+vertices_list_t3 <- as.data.frame(vertices_list_t3, stringsAsFactors = F)
+
+vertices_list_t3 <- distinct(select(vertices_list_t3,id,name)) 
+vertices_list_t3 <- vertices_list_t3[!duplicated(vertices_list_t3$id),]#delete the duplicated item
+
+setdiff(union(edge_list_t3$post,edge_list_t3$retweet_from),vertices_list_t3$id)#verify the completeness
+
+# Add attr weight
+vertices_list_t3<-merge(vertices_list_t3,weight_t3,all.x=T)
+vertices_list_t3[is.na(vertices_list_t3$weight),4]<-0
+
+# Add elite notification
+vertices_list_t3<-merge(vertices_list_t3, elite.users_t3,all.x=T)
+vertices_list_t3[is.na(vertices_list_t3$elite),5]<-0
+head(vertices_list_t3)
+length(vertices_list_t3[,1])
+
+
+# Remove unnecessary objects
+rm(elite.users_t1);rm(elite.users_t2);rm(elite.users_t3)
+rm(unique.users_t1);rm(unique.users_t2);rm(unique.users_t3)
+rm(vertices_list2_t1);rm(vertices_list2_t2);rm(vertices_list2_t3)
+```
+
+```{r Export file as csv}
+write.csv(edge_list_t1, 'edge_list_t1.csv')
+write.csv(edge_list_t2, 'edge_list_t2.csv')
+write.csv(edge_list_t3, 'edge_list_t3.csv')
+write.csv(vertices_list_t1, 'vertice_list_t1.csv')
+write.csv(vertices_list_t2, 'vertice_list_t2.csv')
+write.csv(vertices_list_t3, 'vertice_list_t3.csv')
+```
