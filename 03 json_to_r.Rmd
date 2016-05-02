@@ -11,7 +11,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Reading json file to R
 
-This script
+This script reads a *.json file with political ideology labels (obamacare_labeled.json) and converts into R data frame.
 
 ```{r}
 con <- file("./Data/obamacare_labeled.json",open = "r")
@@ -32,3 +32,53 @@ rm(con); rm(i); rm(temp)
 save(obamacare,file="../R Project/Data/obamacare_relabeled.RData")
 ```
 
+## Extracting variables from a list object
+
+The .RData is a large list that contains a number of list-in-list objects. The following code converts the subset of the list object into a R dataframe.
+
+```{r}
+load("~/obamacare_relabeled.RData") #modify according to a location of working directory
+
+id_str <- sapply(obamacare, with, id_str)
+user_ideology <- sapply(obamacare, with, ideology)
+screen_name <- sapply(obamacare, with, user$screen_name)
+name <- sapply(obamacare, with, user$name)
+user_id_str <- sapply(obamacare, with, user$id_str)
+text <- sapply(obamacare, with, text)
+created_at <- sapply(obamacare, with, id_str)
+verified <- sapply(obamacare, with, user$verified)
+retweet_count <- sapply(obamacare, with, retweet_count)
+statuses_count <- sapply(obamacare, with, user$statuses_count)
+followers_count <- sapply(obamacare, with, user$followers_count)
+friends_count <- sapply(obamacare, with, user$friends_count)
+# some elements require to do as follows to handle a list
+description <-
+  sapply(obamacare, function(x) return(x$user$description))
+description <- 
+  sapply(description, function(x) ifelse(is.null(x), NA, x)) # list to vector
+time_zone <-
+  sapply(obamacare, function(x) return(x$user$time_zone))
+time_zone <- 
+  sapply(time_zone, function(x) ifelse(is.null(x), NA, x))
+
+obamacare_relabeled <-
+  data.frame(id_str, user_ideology, screen_name, name, user_id_str, text,
+             description, created_at, verified, statuses_count, retweet_count,
+             time_zone, followers_count, friends_count)
+
+rm(screen_name); rm(text); rm(retweet_count); rm(id_str); rm(created_at);
+rm(verified); rm(user_id_str); rm(description); rm(followers_count);rm(name);
+rm(time_zone); rm(friends_count); rm(user_ideology); rm(statuses_count)
+
+# Remove white spaces in some variables due to format errors while saving .csv
+obamacare_relabeled$text <-
+  data.frame(gsub("\\s", " ", obamacare_relabeled$text))
+obamacare_relabeled$description <-
+  data.frame(gsub("\\s", " ", obamacare_relabeled$description))
+obamacare_relabeled$name <-
+  data.frame(gsub("\\s", " ", obamacare_relabeled$name))
+
+# Exporting dataframe in .txt
+write.table(obamacare_relabeled, file = "obamacare_relabeled.txt",
+            row.names = F, col.names = T, quote = T, sep = "\t", na = "NA")
+```
