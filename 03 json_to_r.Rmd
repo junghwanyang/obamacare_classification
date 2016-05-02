@@ -60,25 +60,32 @@ time_zone <-
   sapply(obamacare, function(x) return(x$user$time_zone))
 time_zone <- 
   sapply(time_zone, function(x) ifelse(is.null(x), NA, x))
+retweet_user <-
+  sapply(obamacare, function(x) return(x$retweeted_status$user$screen_name))
+retweet_user <-
+  sapply(retweet_user, function(x) ifelse(is.null(x), NA, x))
 
 obamacare_relabeled <-
   data.frame(id_str, user_ideology, screen_name, name, user_id_str, text,
              description, created_at, verified, statuses_count, retweet_count,
-             time_zone, followers_count, friends_count)
+             retweet_user, time_zone, followers_count, friends_count)
 
 rm(screen_name); rm(text); rm(retweet_count); rm(id_str); rm(created_at);
 rm(verified); rm(user_id_str); rm(description); rm(followers_count);rm(name);
-rm(time_zone); rm(friends_count); rm(user_ideology); rm(statuses_count)
+rm(retweet_user); rm(time_zone); rm(friends_count); rm(user_ideology);
+rm(statuses_count)
 
 # Remove white spaces in some variables due to format errors while saving .csv
-obamacare_relabeled$text <-
-  data.frame(gsub("\\s", " ", obamacare_relabeled$text))
-obamacare_relabeled$description <-
-  data.frame(gsub("\\s", " ", obamacare_relabeled$description))
-obamacare_relabeled$name <-
-  data.frame(gsub("\\s", " ", obamacare_relabeled$name))
+# obamacare_relabeled$text <-
+#   data.frame(gsub("\\s", " ", obamacare_relabeled$text))
+# obamacare_relabeled$description <-
+#   data.frame(gsub("\\s", " ", obamacare_relabeled$description))
+# obamacare_relabeled$name <-
+#   data.frame(gsub("\\s", " ", obamacare_relabeled$name))
+obamacare_relabeled <-
+  as.data.frame(apply(obamacare_relabeled, 2, function(x)gsub('\\s+', ' ',x)))
 
-# Exporting dataframe in .txt
-write.table(obamacare_relabeled, file = "obamacare_relabeled.txt",
-            row.names = F, col.names = T, quote = T, sep = "\t", na = "NA")
+# Exporting dataframe in .csv
+write.csv(obamacare_relabeled, file = "obamacare_relabeled.csv",
+          row.names = F)
 ```
