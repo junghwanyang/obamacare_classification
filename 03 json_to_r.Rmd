@@ -1,0 +1,34 @@
+---
+title: "03 json_to_r"
+author: "JungHwan Yang"
+date: "April 30, 2016"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Reading json file to R
+
+This script
+
+```{r}
+con <- file("./Data/obamacare_labeled.json",open = "r")
+obamacare<-vector("list")
+i=0
+while(T){
+  i<-i+1
+  temp<-readLines(con,1)
+  if(length(temp)==0){
+    print("reach the end")
+    break
+  } else
+  obamacare[[i]]<-fromJSON(temp)
+}
+close(con)
+
+rm(con); rm(i); rm(temp)
+save(obamacare,file="../R Project/Data/obamacare_relabeled.RData")
+```
+
