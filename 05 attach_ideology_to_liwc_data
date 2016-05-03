@@ -1,0 +1,17 @@
+---
+title: "05 attach_ideology_to_liwc_data"
+author: "J Yang"
+date: "May 2, 2016"
+output: html_document
+---
+
+
+```{r}
+# Read the new relabed data
+d.relabeled <- read.csv('D:/obamacare_relabeled/obamacare_relabeled.csv')
+
+# Read the data for liwc analysis
+d.liwc <- read.table('D:/obamacare_liwc/all_users_merged_uniq.txt', 
+                     sep = '\t', fill = T, header = F) # have some problems here
+```
+
