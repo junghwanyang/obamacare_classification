@@ -12,6 +12,6 @@ d.relabeled <- read.csv('D:/obamacare_relabeled/obamacare_relabeled.csv')
 
 # Read the data for liwc analysis
 d.liwc <- read.table('D:/obamacare_liwc/all_users_merged_uniq.txt', 
-                     sep = '\t', fill = T, header = F) # have some problems here
+                     sep = '\t', fill = T, quote = "\"", header = F) # have some problems here. R cannot read any lines after # sign
 ```
 
