@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 Created on Thu Oct  8 16:21:18 2015
+Modified on May 3 2016
 
 @author: arash
 @editor: junghwanyang
@@ -129,7 +130,7 @@ clf.fit(X_train, y_train)
 predicted_labels = clf.predict(dtm)
 
 # loading json file for all twitts
-file_name = './obamacare.json'
+file_name = '../R Project/Data/obamacare.json'
 line_reader = open(file_name,'r') # r means for reading
 
 # building a new json file for all twitts + new predicted labels
