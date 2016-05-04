@@ -1,7 +1,7 @@
 ---
 title: "05 attach_ideology_to_liwc_data"
 author: "J Yang"
-date: "May 2, 2016"
+date: "May 3, 2016"
 output: html_document
 ---
 
@@ -12,6 +12,18 @@ d.relabeled <- read.csv('D:/obamacare_relabeled/obamacare_relabeled.csv')
 
 # Read the data for liwc analysis
 d.liwc <- read.table('D:/obamacare_liwc/all_users_merged_uniq.txt', 
-                     sep = '\t', fill = T, quote = "\"", header = F) # have some problems here. R cannot read any lines after # sign
+                     sep = '\t', fill = T, quote = "\"", header = F) # have some problems here.
+names(d.liwc) <- c("id_str", "created_at", "text", "name", "screen_name")
 ```
 
+```{r}
+d.unique <- d.relabeled[!duplicated(d.relabeled$screen_name), c(2:3, 7)]
+
+# Merge two dataframes
+d.liwc <- 
+  merge(d.liwc, d.unique,
+        by.x = "screen_name", by.y = "screen_name", all = T)
+
+## Export d.liwc as all_users_merged_liwc.csv
+write.csv (d.liwc, "all_users_merged_liwc.csv", row.names = F, quote = T)
+```
