@@ -11,23 +11,55 @@ I divided the data into three according to three time frames we focused in the d
 
 ```{r}
 # Loading the relabeled data
-load("D:/obamacare_relabeled/obamacare_relabeled.RData")
+load("D:/jyang/obamacare_relabeled/obamacare_relabeled.RData")
 
 obamacare_relabeled$time <- 
   as.Date(as.POSIXct(obamacare_relabeled$created_at,
                      format = "%a %b %d %H:%M:%S %z %Y", tz = "UTC"),
           format = "%m %d")
 
+# Check and convert variable classes
+str(obamacare_relabeled)
+obamacare_relabeled$id_str <-
+  as.character(obamacare_relabeled$id_str)
+obamacare_relabeled$screen_name <-
+  as.character(obamacare_relabeled$screen_name)
+obamacare_relabeled$name <-
+  as.character(obamacare_relabeled$name)
+obamacare_relabeled$user_id_str <-
+  as.character(obamacare_relabeled$user_id_str)
+obamacare_relabeled$text <-
+  as.character(obamacare_relabeled$text)
+obamacare_relabeled$description <-
+  as.character(obamacare_relabeled$description)
+obamacare_relabeled$statuses_count <-
+  as.numeric(obamacare_relabeled$statuses_count)
+obamacare_relabeled$retweet_count <-
+  as.numeric(obamacare_relabeled$retweet_count)
+obamacare_relabeled$retweet_user <-
+  as.character(obamacare_relabeled$retweet_user)
+obamacare_relabeled$followers_count <-
+  as.numeric(obamacare_relabeled$followers_count)
+obamacare_relabeled$friends_count <-
+  as.numeric(obamacare_relabeled$friends_count)
+str(obamacare_relabeled)
 
 # Creating three different dataframes by time period
 
-d1 <- subset(obamacare_relabeled,as.Date(obamacare_relabeled$time) >= "2012-03-17" &
-               as.Date(obamacare_relabeled$time) <= "2012-04-03")
-d2 <- subset(obamacare_relabeled,as.Date(obamacare_relabeled$time) >= "2012-06-19" &
-               as.Date(obamacare_relabeled$time) <= "2012-07-07")
-d3 <- subset(obamacare_relabeled,as.Date(obamacare_relabeled$time) >= "2012-10-22" &
-               as.Date(obamacare_relabeled$time) <= "2012-11-08")
+d1 <-
+  subset(obamacare_relabeled,
+         as.Date(obamacare_relabeled$time) >= "2012-03-17" &
+         as.Date(obamacare_relabeled$time) <= "2012-04-03")
+d2 <- 
+  subset(obamacare_relabeled,
+         as.Date(obamacare_relabeled$time) >= "2012-06-19" &
+         as.Date(obamacare_relabeled$time) <= "2012-07-07")
+d3 <- 
+  subset(obamacare_relabeled,
+         as.Date(obamacare_relabeled$time) >= "2012-10-22" &
+         as.Date(obamacare_relabeled$time) <= "2012-11-08")
 table(obamacare_relabeled$time)
+
 
 
 # Create three different data lists by time period
@@ -65,13 +97,13 @@ oc3 <- obamacare[as.Date(as.POSIXct(obamacare_relabeled$created_at,
 # write.csv(sorted.data_t1, "sorted.data.text_t1.csv")
 # write.csv(sorted.data_t2, "sorted.data.text_t2.csv")
 # write.csv(sorted.data_t3, "sorted.data.text_t3.csv")
-
+```
 
 The following codes are based on Dignxian`s original [post](https://github.com/monchewharry/R_twitter_politics/blob/master/obama_tweet_graph/Obamacare_Tweets/retweet_network.R)
 
 ```{r}
-library(igraph)
-library(dplyr)
+# library(igraph)
+# library(dplyr)
 
 length(obamacare)
 
@@ -204,12 +236,12 @@ rm(temp)
 
 # Elite user list for time 1
 unique.users_t1 <- d1[!duplicated(d1$screen_name), ]
-length(unique.users_t1$followers_count[unique.users_t1$verified==T])
-length(unique.users_t1$followers_count[unique.users_t1$verified==F])
+length(unique.users_t1$followers_count[unique.users_t1$verified == " TRUE"])
+length(unique.users_t1$followers_count[unique.users_t1$verified == "FALSE"])
 unique.users_t1$elite <- 0
-unique.users_t1$elite[unique.users_t1$verified == T] <- 1
-table(unique.users_t1$elite, unique.users_t1$ideology)
-unique.users_t1$elite[unique.users_t1$verified == F &
+unique.users_t1$elite[unique.users_t1$verified == " TRUE"] <- 1
+table(unique.users_t1$elite, unique.users_t1$user_ideology)
+unique.users_t1$elite[unique.users_t1$verified == "FALSE" &
                    unique.users_t1$followers_count >
                      quantile(unique.users_t1$followers_count[unique.users_t1$verified == F], 0.98)] <- 1
 table(unique.users_t1$elite, unique.users_t1$ideology)
