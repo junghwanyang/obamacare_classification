@@ -14,25 +14,30 @@ I divided the data into three according to three time frames we focused in the d
 load("D:/obamacare_relabeled/obamacare_relabeled.RData")
 
 obamacare_relabeled$time <- 
-  as.Date(as.POSIXct(obamacare_relabeled$created_at[1:10], format = "%a %b %d %H:%M:%S %z %Y", tz = "UTC"),
+  as.Date(as.POSIXct(obamacare_relabeled$created_at,
+                     format = "%a %b %d %H:%M:%S %z %Y", tz = "UTC"),
           format = "%m %d")
 
 
 # Creating three different dataframes by time period
 
-d1 <- subset(d,as.Date(obamacare_relabeled$time) >= "2012-03-17" & as.Date(obamacare_relabeled$time) <= "2012-04-03")
-d2 <- subset(d,as.Date(obamacare_relabeled$time) >= "2012-06-19" & as.Date(obamacare_relabeled$time) <= "2012-07-07")
-d3 <- subset(d,as.Date(obamacare_relabeled$time) >= "2012-10-22" & as.Date(obamacare_relabeled$time) <= "2012-11-08")
+d1 <- subset(obamacare_relabeled,as.Date(obamacare_relabeled$time) >= "2012-03-17" &
+               as.Date(obamacare_relabeled$time) <= "2012-04-03")
+d2 <- subset(obamacare_relabeled,as.Date(obamacare_relabeled$time) >= "2012-06-19" &
+               as.Date(obamacare_relabeled$time) <= "2012-07-07")
+d3 <- subset(obamacare_relabeled,as.Date(obamacare_relabeled$time) >= "2012-10-22" &
+               as.Date(obamacare_relabeled$time) <= "2012-11-08")
 table(obamacare_relabeled$time)
 
 
 # Create three different data lists by time period
-oc1 <- obamacare[as.Date(as.POSIXct(obamacare_relabeled$created_at, 
-                                    format = "%a %b %d %H:%M:%S %z %Y", tz = "UTC"),
-                         format = "%m %d") >= "2012-03-17" &
-                 as.Date(as.POSIXct(obamacare_relabeled$created_at,
-                                    format = "%a %b %d %H:%M:%S %z %Y", tz = "UTC"),
-                         format = "%m %d") <= "2012-04-03"]
+oc1 <-
+  obamacare[as.Date(as.POSIXct(obamacare_relabeled$created_at,
+                               format = "%a %b %d %H:%M:%S %z %Y",
+                               tz = "UTC"), format = "%m %d") >= "2012-03-17" &
+            as.Date(as.POSIXct(obamacare_relabeled$created_at,
+                               format = "%a %b %d %H:%M:%S %z %Y",
+                               tz = "UTC"), format = "%m %d") <= "2012-04-03"]
 oc2 <- obamacare[as.Date(as.POSIXct(obamacare_relabeled$created_at, 
                                     format = "%a %b %d %H:%M:%S %z %Y", tz = "UTC"),
                          format = "%m %d") >= "2012-06-19" &
@@ -46,7 +51,7 @@ oc3 <- obamacare[as.Date(as.POSIXct(obamacare_relabeled$created_at,
                                     format = "%a %b %d %H:%M:%S %z %Y", tz = "UTC"),
                          format = "%m %d") <= "2012-11-08"]
 
-rm(d1);rm(d2);rm(d3)
+#rm(d1);rm(d2);rm(d3)
 
 # sort data by several variable
 # sorted.data_t1 <- 
@@ -191,14 +196,14 @@ head(weight_t3)
 
 rm(temp)
 
-
+###############################################
 
 ### Make vertices list ###
 # Before making a list, I added a label indicating 'elite' users
 # Elite users: Verified account + top 2% users in terms of number of followers
 
 # Elite user list for time 1
-unique.users_t1 <- read.csv('sorted.unique.users_t1.csv', header = T)
+unique.users_t1 <- d1[!duplicated(d1$screen_name), ]
 length(unique.users_t1$followers_count[unique.users_t1$verified==T])
 length(unique.users_t1$followers_count[unique.users_t1$verified==F])
 unique.users_t1$elite <- 0
@@ -268,7 +273,6 @@ vertices_list_t1 <- rbind(vertices_list_t1,vertices_list2_t1)
 colnames(vertices_list_t1)<-c("id","retweet_from", "ideology")
 vertices_list_t1 <- as.data.frame(vertices_list_t1, stringsAsFactors = F)
 
-library(dplyr)
 vertices_list_t1 <- distinct(select(vertices_list_t1,id,name)) 
 vertices_list_t1 <- vertices_list_t1[!duplicated(vertices_list_t1$id),]#delete the duplicated item
 
