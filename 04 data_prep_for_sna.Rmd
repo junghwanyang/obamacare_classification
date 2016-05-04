@@ -1,42 +1,48 @@
 ---
 title: "04 data_prep_for_sna"
 author: "J Yang"
-date: "May 2, 2016"
+date: "May 4, 2016"
 output: html_document
 ---
 
+This script is about creating data for social network analysis.
+I divided the data into three according to three time frames we focused in the data collection.
+
 
 ```{r}
-d$time <- 
-  as.Date(as.POSIXct(d$created_at, format = "%a %b %d %H:%M:%S %z %Y", tz = "UTC"),
+# Loading the relabeled data
+load("D:/obamacare_relabeled/obamacare_relabeled.RData")
+
+obamacare_relabeled$time <- 
+  as.Date(as.POSIXct(obamacare_relabeled$created_at[1:10], format = "%a %b %d %H:%M:%S %z %Y", tz = "UTC"),
           format = "%m %d")
 
 
-# Created three different dataframes by time period
+# Creating three different dataframes by time period
 
-d1 <- subset(d,as.Date(d$time) >= "2012-03-17" & as.Date(d$time) <= "2012-04-03")
-d2 <- subset(d,as.Date(d$time) >= "2012-06-19" & as.Date(d$time) <= "2012-07-07")
-d3 <- subset(d,as.Date(d$time) >= "2012-10-22" & as.Date(d$time) <= "2012-11-08")
-table(d$time)
+d1 <- subset(d,as.Date(obamacare_relabeled$time) >= "2012-03-17" & as.Date(obamacare_relabeled$time) <= "2012-04-03")
+d2 <- subset(d,as.Date(obamacare_relabeled$time) >= "2012-06-19" & as.Date(obamacare_relabeled$time) <= "2012-07-07")
+d3 <- subset(d,as.Date(obamacare_relabeled$time) >= "2012-10-22" & as.Date(obamacare_relabeled$time) <= "2012-11-08")
+table(obamacare_relabeled$time)
 
 
 # Create three different data lists by time period
-oc1 <- obamacare[as.Date(as.POSIXct(d$created_at, 
+oc1 <- obamacare[as.Date(as.POSIXct(obamacare_relabeled$created_at, 
                                     format = "%a %b %d %H:%M:%S %z %Y", tz = "UTC"),
                          format = "%m %d") >= "2012-03-17" &
-                 as.Date(as.POSIXct(d$created_at,
+                 as.Date(as.POSIXct(obamacare_relabeled$created_at,
                                     format = "%a %b %d %H:%M:%S %z %Y", tz = "UTC"),
                          format = "%m %d") <= "2012-04-03"]
-oc2 <- obamacare[as.Date(as.POSIXct(d$created_at, 
+oc2 <- obamacare[as.Date(as.POSIXct(obamacare_relabeled$created_at, 
                                     format = "%a %b %d %H:%M:%S %z %Y", tz = "UTC"),
                          format = "%m %d") >= "2012-06-19" &
-                 as.Date(as.POSIXct(d$created_at,
+                 as.Date(as.POSIXct(obamacare_relabeled$created_at,
                                     format = "%a %b %d %H:%M:%S %z %Y", tz = "UTC"),
                          format = "%m %d") <= "2012-07-07"]
-oc3 <- obamacare[as.Date(as.POSIXct(d$created_at, 
+oc3 <- obamacare[as.Date(as.POSIXct(obamacare_relabeled$created_at, 
                                     format = "%a %b %d %H:%M:%S %z %Y", tz = "UTC"),
                          format = "%m %d") >= "2012-10-22" &
-                 as.Date(as.POSIXct(d$created_at,
+                 as.Date(as.POSIXct(obamacare_relabeled$created_at,
                                     format = "%a %b %d %H:%M:%S %z %Y", tz = "UTC"),
                          format = "%m %d") <= "2012-11-08"]
 
