@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 Created on Thu Sep 24 12:43:02 2015
+Modified on May 3 2016
 
 @author: asangari
 @editor: junghwanyang
