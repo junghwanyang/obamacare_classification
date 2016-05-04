@@ -65,23 +65,25 @@ table(obamacare_relabeled$time)
 # Create three different data lists by time period
 oc1 <-
   obamacare[as.Date(as.POSIXct(obamacare_relabeled$created_at,
-                               format = "%a %b %d %H:%M:%S %z %Y",
-                               tz = "UTC"), format = "%m %d") >= "2012-03-17" &
+                               format = "%a %b %d %H:%M:%S %z %Y", tz = "UTC"),
+                               format = "%m %d") >= "2012-03-17" &
             as.Date(as.POSIXct(obamacare_relabeled$created_at,
-                               format = "%a %b %d %H:%M:%S %z %Y",
-                               tz = "UTC"), format = "%m %d") <= "2012-04-03"]
-oc2 <- obamacare[as.Date(as.POSIXct(obamacare_relabeled$created_at, 
-                                    format = "%a %b %d %H:%M:%S %z %Y", tz = "UTC"),
-                         format = "%m %d") >= "2012-06-19" &
-                 as.Date(as.POSIXct(obamacare_relabeled$created_at,
-                                    format = "%a %b %d %H:%M:%S %z %Y", tz = "UTC"),
-                         format = "%m %d") <= "2012-07-07"]
-oc3 <- obamacare[as.Date(as.POSIXct(obamacare_relabeled$created_at, 
-                                    format = "%a %b %d %H:%M:%S %z %Y", tz = "UTC"),
-                         format = "%m %d") >= "2012-10-22" &
-                 as.Date(as.POSIXct(obamacare_relabeled$created_at,
-                                    format = "%a %b %d %H:%M:%S %z %Y", tz = "UTC"),
-                         format = "%m %d") <= "2012-11-08"]
+                               format = "%a %b %d %H:%M:%S %z %Y", tz = "UTC"),
+                               format = "%m %d") <= "2012-04-03"]
+oc2 <-
+  obamacare[as.Date(as.POSIXct(obamacare_relabeled$created_at, 
+                               format = "%a %b %d %H:%M:%S %z %Y", tz = "UTC"),
+                               format = "%m %d") >= "2012-06-19" &
+            as.Date(as.POSIXct(obamacare_relabeled$created_at,
+                               format = "%a %b %d %H:%M:%S %z %Y", tz = "UTC"),
+                               format = "%m %d") <= "2012-07-07"]
+oc3 <-
+  obamacare[as.Date(as.POSIXct(obamacare_relabeled$created_at, 
+                               format = "%a %b %d %H:%M:%S %z %Y", tz = "UTC"),
+                               format = "%m %d") >= "2012-10-22" &
+            as.Date(as.POSIXct(obamacare_relabeled$created_at,
+                               format = "%a %b %d %H:%M:%S %z %Y", tz = "UTC"),
+                               format = "%m %d") <= "2012-11-08"]
 
 #rm(d1);rm(d2);rm(d3)
 
