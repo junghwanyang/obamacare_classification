@@ -65,25 +65,23 @@ table(obamacare_relabeled$time)
 # Create three different data lists by time period
 oc1 <-
   obamacare[as.Date(as.POSIXct(obamacare_relabeled$created_at,
-                               format = "%a %b %d %H:%M:%S %z %Y", tz = "UTC"),
-                               format = "%m %d") >= "2012-03-17" &
+                               format = "%a %b %d %H:%M:%S %z %Y",
+                               tz = "UTC"), format = "%m %d") >= "2012-03-17" &
             as.Date(as.POSIXct(obamacare_relabeled$created_at,
-                               format = "%a %b %d %H:%M:%S %z %Y", tz = "UTC"),
-                               format = "%m %d") <= "2012-04-03"]
-oc2 <-
-  obamacare[as.Date(as.POSIXct(obamacare_relabeled$created_at, 
-                               format = "%a %b %d %H:%M:%S %z %Y", tz = "UTC"),
-                               format = "%m %d") >= "2012-06-19" &
-            as.Date(as.POSIXct(obamacare_relabeled$created_at,
-                               format = "%a %b %d %H:%M:%S %z %Y", tz = "UTC"),
-                               format = "%m %d") <= "2012-07-07"]
-oc3 <-
-  obamacare[as.Date(as.POSIXct(obamacare_relabeled$created_at, 
-                               format = "%a %b %d %H:%M:%S %z %Y", tz = "UTC"),
-                               format = "%m %d") >= "2012-10-22" &
-            as.Date(as.POSIXct(obamacare_relabeled$created_at,
-                               format = "%a %b %d %H:%M:%S %z %Y", tz = "UTC"),
-                               format = "%m %d") <= "2012-11-08"]
+                               format = "%a %b %d %H:%M:%S %z %Y",
+                               tz = "UTC"), format = "%m %d") <= "2012-04-03"]
+oc2 <- obamacare[as.Date(as.POSIXct(obamacare_relabeled$created_at, 
+                                    format = "%a %b %d %H:%M:%S %z %Y", tz = "UTC"),
+                         format = "%m %d") >= "2012-06-19" &
+                 as.Date(as.POSIXct(obamacare_relabeled$created_at,
+                                    format = "%a %b %d %H:%M:%S %z %Y", tz = "UTC"),
+                         format = "%m %d") <= "2012-07-07"]
+oc3 <- obamacare[as.Date(as.POSIXct(obamacare_relabeled$created_at, 
+                                    format = "%a %b %d %H:%M:%S %z %Y", tz = "UTC"),
+                         format = "%m %d") >= "2012-10-22" &
+                 as.Date(as.POSIXct(obamacare_relabeled$created_at,
+                                    format = "%a %b %d %H:%M:%S %z %Y", tz = "UTC"),
+                         format = "%m %d") <= "2012-11-08"]
 
 #rm(d1);rm(d2);rm(d3)
 
@@ -244,39 +242,40 @@ unique.users_t1$elite <- 0
 unique.users_t1$elite[unique.users_t1$verified == " TRUE"] <- 1
 table(unique.users_t1$elite, unique.users_t1$user_ideology)
 unique.users_t1$elite[unique.users_t1$verified == "FALSE" &
-                   unique.users_t1$followers_count >
-                     quantile(unique.users_t1$followers_count[unique.users_t1$verified == F], 0.98)] <- 1
-table(unique.users_t1$elite, unique.users_t1$ideology)
+                      unique.users_t1$followers_count >
+                      quantile(unique.users_t1$followers_count[unique.users_t1$verified == "FALSE"], 0.98)] <- 1
+table(unique.users_t1$elite, unique.users_t1$user_ideology)
 elite.users_t1 <- unique.users_t1[c("screen_name", "elite")]
 names(elite.users_t1) <- c("retweet_from", "elite")
 
 # Elite user list for time 2
-unique.users_t2 <- read.csv('sorted.unique.users_t2.csv', header = T)
-length(unique.users_t2$followers_count[unique.users_t2$verified==T])
-length(unique.users_t2$followers_count[unique.users_t2$verified==F])
+unique.users_t2 <- d2[!duplicated(d2$screen_name), ]
+length(unique.users_t2$followers_count[unique.users_t2$verified == " TRUE"])
+length(unique.users_t2$followers_count[unique.users_t2$verified == "FALSE"])
 unique.users_t2$elite <- 0
-unique.users_t2$elite[unique.users_t2$verified == T] <- 1
-table(unique.users_t2$elite, unique.users_t2$ideology)
-unique.users_t2$elite[unique.users_t2$verified == F &
-                   unique.users_t2$followers_count >
-                     quantile(unique.users_t2$followers_count[unique.users_t2$verified == F], 0.98)] <- 1
-table(unique.users_t2$elite, unique.users_t2$ideology)
+unique.users_t2$elite[unique.users_t2$verified == " TRUE"] <- 1
+table(unique.users_t2$elite, unique.users_t2$user_ideology)
+unique.users_t2$elite[unique.users_t2$verified == "FALSE" &
+                      unique.users_t2$followers_count >
+                      quantile(unique.users_t2$followers_count[unique.users_t2$verified == "FALSE"], 0.98)] <- 1
+table(unique.users_t2$elite, unique.users_t2$user_ideology)
 elite.users_t2 <- unique.users_t2[c("screen_name", "elite")]
 names(elite.users_t2) <- c("retweet_from", "elite")
 
 # Elite user list for time 3
-unique.users_t3 <- read.csv('sorted.unique.users_t3.csv', header = T)
-length(unique.users_t3$followers_count[unique.users_t3$verified==T])
-length(unique.users_t3$followers_count[unique.users_t3$verified==F])
+unique.users_t3 <- d3[!duplicated(d3$screen_name), ]
+length(unique.users_t3$followers_count[unique.users_t3$verified == " TRUE"])
+length(unique.users_t3$followers_count[unique.users_t3$verified == "FALSE"])
 unique.users_t3$elite <- 0
-unique.users_t3$elite[unique.users_t3$verified == T] <- 1
-table(unique.users_t3$elite, unique.users_t3$ideology)
-unique.users_t3$elite[unique.users_t3$verified == F &
-                   unique.users_t3$followers_count >
-                     quantile(unique.users_t3$followers_count[unique.users_t3$verified == F], 0.98)] <- 1
-table(unique.users_t3$elite, unique.users_t3$ideology)
+unique.users_t3$elite[unique.users_t3$verified == " TRUE"] <- 1
+table(unique.users_t3$elite, unique.users_t3$user_ideology)
+unique.users_t3$elite[unique.users_t3$verified == "FALSE" &
+                      unique.users_t3$followers_count >
+                      quantile(unique.users_t3$followers_count[unique.users_t3$verified == "FALSE"], 0.98)] <- 1
+table(unique.users_t3$elite, unique.users_t3$user_ideology)
 elite.users_t3 <- unique.users_t3[c("screen_name", "elite")]
 names(elite.users_t3) <- c("retweet_from", "elite")
+
 
 # unique.users$elite[unique.users$verified == F &
 #                    unique.users$ideology == "C" &
@@ -397,6 +396,8 @@ rm(elite.users_t1);rm(elite.users_t2);rm(elite.users_t3)
 rm(unique.users_t1);rm(unique.users_t2);rm(unique.users_t3)
 rm(vertices_list2_t1);rm(vertices_list2_t2);rm(vertices_list2_t3)
 ```
+
+Save data as .csv
 
 ```{r Export file as csv}
 write.csv(edge_list_t1, 'edge_list_t1.csv')
