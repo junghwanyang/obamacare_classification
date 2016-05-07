@@ -17,7 +17,9 @@ names(d.liwc) <- c("id_str", "created_at", "text", "name", "screen_name")
 ```
 
 ```{r}
-d.unique <- d.relabeled[!duplicated(d.relabeled$screen_name), c(2:3, 7)]
+d.unique <-
+  d.relabeled[!duplicated(d.relabeled$screen_name),
+              c("screen_name", "user_ideology", "description", "verified")]
 
 # Merge two dataframes
 d.liwc <- 
