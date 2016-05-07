@@ -1,7 +1,7 @@
 ---
 title: "03 json_to_r"
 author: "JungHwan Yang"
-date: "April 30, 2016"
+date: "May 7, 2016"
 output: html_document
 ---
 
@@ -14,7 +14,8 @@ knitr::opts_chunk$set(echo = TRUE)
 This script reads a *.json file with political ideology labels (obamacare_labeled.json) and converts into R data frame.
 
 ```{r}
-con <- file("./Data/obamacare_labeled.json",open = "r")
+# install.packages("rjson"); library(rjson)
+con <- file("D://obamacare_relabeled/obamacare_relabeled.json",open = "r")
 obamacare<-vector("list")
 i=0
 while(T){
@@ -29,7 +30,7 @@ while(T){
 close(con)
 
 rm(con); rm(i); rm(temp)
-save(obamacare,file="../R Project/Data/obamacare_relabeled.RData")
+save(obamacare,file="D://obamacare_relabeled/obamacare_relabeled.RData")
 ```
 
 ## Extracting variables from a list object
