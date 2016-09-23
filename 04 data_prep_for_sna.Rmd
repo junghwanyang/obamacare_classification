@@ -188,8 +188,8 @@ head(weight_t2)
 
 temp <- merge(edge_list_t2, weight_t2, all.x = T)
 
-# Remove edges received less than 5 retweets
-edge_list_t2 <- subset(temp, select = c(post, retweet_from), subset = weight >= 5)
+# Remove edges received less than 10 retweets -- t2 has more volume, so I used 10 instead of 5
+edge_list_t2 <- subset(temp, select = c(post, retweet_from), subset = weight >= 10)
 edge_list_t2 <- edge_list_t2[!is.na(edge_list_t2[, 1]), ]
 edge_list_t2 <- as.data.frame(edge_list_t2, stringsAsFactors = F)
 
@@ -215,8 +215,8 @@ head(weight_t3)
 
 temp <- merge(edge_list_t3, weight_t3, all.x = T)
 
-# Remove edges received less than 5 retweets
-edge_list_t3 <- subset(temp, select = c(post, retweet_from), subset = weight >= 5)
+# Remove edges received less than 15 retweets
+edge_list_t3 <- subset(temp, select = c(post, retweet_from), subset = weight >= 15)
 edge_list_t3 <- edge_list_t3[!is.na(edge_list_t3[, 1]), ]
 edge_list_t3 <- as.data.frame(edge_list_t3, stringsAsFactors = F)
 
